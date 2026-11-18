@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import appConfig from './config/app.config.js';
 import databaseConfig from './config/database.config.js';
 import { envSchema } from './config/env.schema.js';
+import { User } from './users/user.entity.js';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { envSchema } from './config/env.schema.js';
         database: config.getOrThrow<string>('database.name'),
         username: config.getOrThrow<string>('database.user'),
         password: config.getOrThrow<string>('database.password'),
+        entities: [User],
         synchronize: false,
       }),
     }),

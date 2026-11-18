@@ -1,9 +1,16 @@
 import { registerAs } from '@nestjs/config';
+import { envSchema } from './env.schema.js';
 
-export default registerAs('database', () => ({
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT),
-  name: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-}));
+export function readDatabaseConfig() {
+  const env = envSchema.parse(process.env);
+
+  return {
+    host: env.DB_HOST,
+    port: env.DB_PORT,
+    name: env.DB_NAME,
+    user: env.DB_USER,
+    password: env.DB_PASSWORD,
+  };
+}
+
+export default registerAs('database', readDatabaseConfig);
