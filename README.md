@@ -27,8 +27,34 @@
 
 ## Project setup
 
+Run the commands from the repository root. Docker must be running before you start PostgreSQL.
+
 ```bash
-$ npm install
+npm ci
+cp .env.example .env
+```
+
+In PowerShell, use `Copy-Item .env.example .env` to create the configuration file.
+
+`DB_STATEMENT_TIMEOUT_MS` sets the time limit for each SQL statement on the
+application's PostgreSQL connections. It must be a positive integer in
+milliseconds. The example configuration uses `2000`.
+
+## Start PostgreSQL and apply migrations
+
+```bash
+docker compose up -d postgres
+docker compose exec postgres pg_isready -h 127.0.0.1 -U user -d nest_start
+```
+
+Run the readiness check until it reports `accepting connections`. If you changed
+`DB_USER` or `DB_NAME` in `.env`, use those values in the check.
+
+Build the project and apply the migrations to the database configured in `.env`.
+
+```bash
+npm run build
+node --env-file=.env ./node_modules/typeorm/cli.js migration:run -d ./dist/config/data-source.js
 ```
 
 ## Compile and run the project
@@ -45,6 +71,9 @@ $ npm run start:prod
 ```
 
 ## Run tests
+
+Run the e2e tests against a test database with the migrations applied and
+`DB_STATEMENT_TIMEOUT_MS=2000`.
 
 ```bash
 # unit tests

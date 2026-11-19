@@ -10,6 +10,7 @@ export function readDatabaseConfig() {
     name: env.DB_NAME,
     user: env.DB_USER,
     password: env.DB_PASSWORD,
+    statementTimeoutMs: env.DB_STATEMENT_TIMEOUT_MS,
   };
 }
 

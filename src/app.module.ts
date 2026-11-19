@@ -27,6 +27,11 @@ import { User } from './users/user.entity.js';
         password: config.getOrThrow<string>('database.password'),
         entities: [User],
         synchronize: false,
+        extra: {
+          statement_timeout: config.getOrThrow<number>(
+            'database.statementTimeoutMs',
+          ),
+        },
       }),
     }),
   ],
