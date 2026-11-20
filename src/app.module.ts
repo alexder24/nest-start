@@ -9,6 +9,7 @@ import databaseConfig from './config/database.config.js';
 import { envSchema } from './config/env.schema.js';
 import { User } from './users/user.entity.js';
 import { AuthModule } from './auth/auth.module.js';
+import jwtConfig from './config/jwt.config.js';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { AuthModule } from './auth/auth.module.js';
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: envSchema,
-      load: [appConfig, databaseConfig],
+      load: [appConfig, databaseConfig, jwtConfig],
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],

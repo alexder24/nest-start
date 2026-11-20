@@ -14,6 +14,9 @@ export class User {
   @Column('text', { name: 'password_hash' })
   passwordHash: string;
 
+  @Column('text', { name: 'refresh_token_hash', nullable: true })
+  refreshTokenHash: string | null;
+
   @Column('integer')
   age: number;
 
