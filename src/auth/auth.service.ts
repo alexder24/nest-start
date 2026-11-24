@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { Repository } from 'typeorm';
 import { User } from '../users/user.entity.js';
 import type { RegisterDto } from './dto/register.dto.js';
+import type { LoginDto } from './dto/login.dto.js';
 import { PasswordHasher } from './password-hasher.service.js';
 import { TokenService } from './token.service.js';
 
@@ -45,5 +46,33 @@ export class AuthService {
         ...tokens,
       };
     });
+  }
+
+  async login(dto: LoginDto) {
+    const user = await this.usersRepository.findOne({
+      where: { login: dto.login },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Неверный логин или пароль');
+    }
+
+    const isPasswordValid = await this.passwordHasher.verify(
+      user.passwordHash,
+      dto.password,
+    );
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Неверный логин или пароль');
+    }
+
+    const tokens = await this.tokenService.issuePair(user.id);
+    const refreshTokenHash = this.tokenService.hashRefreshToken(
+      tokens.refresh_token,
+    );
+
+    await this.usersRepository.update(user.id, { refreshTokenHash });
+
+    return tokens;
   }
 }
