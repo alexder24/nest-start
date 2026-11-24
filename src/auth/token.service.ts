@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import jwtConfig from '../config/jwt.config.js';
@@ -41,5 +41,26 @@ export class TokenService {
 
   hashRefreshToken(token: string): string {
     return createHash('sha256').update(token).digest('hex');
+  }
+
+  async verifyRefreshToken(token: string): Promise<{ sub: string }> {
+    try {
+      const payload = await this.jwtService.verifyAsync<{
+        sub: string;
+        tokenType: string;
+      }>(token, {
+        secret: this.config.refreshSecret,
+      });
+
+      if (payload.tokenType !== 'refresh') {
+        throw new UnauthorizedException('Неверный тип токена');
+      }
+
+      return { sub: payload.sub };
+    } catch {
+      throw new UnauthorizedException(
+        'Недействительный или истёкший refresh-токен',
+      );
+    }
   }
 }

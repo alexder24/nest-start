@@ -11,6 +11,7 @@ import { CurrentUser } from './decorators/current-user.decorator.js';
 import type { AuthenticatedUser } from './decorators/current-user.decorator.js';
 import { LoginDto } from './dto/login.dto.js';
 import { RegisterDto } from './dto/register.dto.js';
+import { RefreshTokenDto } from './dto/refresh-token.dto.js';
 import { AuthGuard } from './guards/auth.guard.js';
 
 @Controller('auth')
@@ -34,5 +35,11 @@ export class AuthController {
   async logout(@CurrentUser() user: AuthenticatedUser) {
     await this.authService.logout(user.id);
     return { message: 'Успешный выход' };
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  refresh(@Body() dto: RefreshTokenDto) {
+    return this.authService.refresh(dto.refresh_token);
   }
 }

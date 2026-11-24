@@ -79,4 +79,33 @@ export class AuthService {
   async logout(userId: number): Promise<void> {
     await this.usersRepository.update(userId, { refreshTokenHash: null });
   }
+
+  async refresh(refreshToken: string) {
+    const payload = await this.tokenService.verifyRefreshToken(refreshToken);
+    const userId = Number(payload.sub);
+
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user || !user.refreshTokenHash) {
+      throw new UnauthorizedException('Токен отозван или недействителен');
+    }
+
+    const tokenHash = this.tokenService.hashRefreshToken(refreshToken);
+    if (user.refreshTokenHash !== tokenHash) {
+      throw new UnauthorizedException('Токен отозван или недействителен');
+    }
+
+    const tokens = await this.tokenService.issuePair(user.id);
+    const newRefreshTokenHash = this.tokenService.hashRefreshToken(
+      tokens.refresh_token,
+    );
+
+    await this.usersRepository.update(user.id, {
+      refreshTokenHash: newRefreshTokenHash,
+    });
+
+    return tokens;
+  }
 }
