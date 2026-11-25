@@ -10,10 +10,12 @@ import { envSchema } from './config/env.schema.js';
 import { User } from './users/user.entity.js';
 import { AuthModule } from './auth/auth.module.js';
 import jwtConfig from './config/jwt.config.js';
+import { UsersModule } from './users/users.module.js';
 
 @Module({
   imports: [
     AuthModule,
+    UsersModule,
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: envSchema,
